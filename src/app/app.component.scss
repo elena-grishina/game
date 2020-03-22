@@ -1,0 +1,122 @@
+$color-1: rgb(2, 71, 94);
+$color-2: rgb(6, 139, 184);
+$color-3: rgb(173, 216, 230);
+$color-4: rgb(100, 193, 224);
+$color-5: rgb(243, 243, 85);
+$color-6: rgb(248, 72, 72);
+$color-7: rgb(103, 235, 103);
+
+* {
+    color: $color-1;
+    font-size: 18px;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.field {
+    flex-wrap: wrap;
+    width: 400px;
+    height: 400px;
+    margin: 30px auto;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    border: 1px solid $color-1;
+    background: $color-2;
+    cursor: pointer;
+}
+
+.yellow {
+    background: $color-5
+}
+
+.red {
+    background: $color-6;
+}
+
+.green {
+    background: $color-7;
+}
+
+.vertical {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.modal {
+    position: absolute;
+    left: calc(50% - 150px);
+    top: calc(50% - 100px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: auto;
+    z-index: 5;
+    height: 200px;
+    width: 300px;
+    border-radius: 15px;
+    border: 2px solid $color-1;
+    background: $color-3;
+    box-shadow: 0 5px 15px $color-1, 0 0 5px $color-1 inset;
+
+    span {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 30px;
+        cursor: pointer;
+    }
+}
+
+button {
+    display: inline-block;
+    width: 80px;
+    height: 30px;
+    border-radius: 8px;
+    margin: 5px 30px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    background: linear-gradient($color-3, $color-4);
+    border: 1px solid $color-2;
+    box-shadow: 2px 2px 0 $color-2, 0 0 2px $color-2 inset;
+    outline: none;
+    cursor: pointer;
+
+    &:active {
+        transform: translate3d(2px, 2px, 0);
+        background: linear-gradient($color-4, $color-3);
+        box-shadow: none;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+    }
+}
+
+input {
+    padding-left: 16px;
+    border: none;
+    outline: none;
+    width: 80px;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+}
