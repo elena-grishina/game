@@ -2,9 +2,7 @@ $color-1: rgb(2, 71, 94);
 $color-2: rgb(6, 139, 184);
 $color-3: rgb(173, 216, 230);
 $color-4: rgb(100, 193, 224);
-$color-5: rgb(243, 243, 85);
-$color-6: rgb(248, 72, 72);
-$color-7: rgb(103, 235, 103);
+$color-5: rgba(0, 0, 0, .5);
 
 * {
     color: $color-1;
@@ -41,22 +39,19 @@ h2 {
     cursor: pointer;
 }
 
-.yellow {
-    background: $color-5
-}
-
-.red {
-    background: $color-6;
-}
-
-.green {
-    background: $color-7;
-}
-
 .vertical {
     display: flex;
     align-items: center;
     flex-direction: column;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: $color-5;
 }
 
 .modal {

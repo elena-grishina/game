@@ -1,21 +1,34 @@
 <h1 class="center">Let's start it!</h1>
 <div class="center">
     <div class="vertical">
-        <div>Speed (ms)</div>
-        <input type="number" min="1" [(ngModel)]="delay">
+        <div>Speed</div>
+        <input type="number"
+            onkeypress="return event.charCode >= 48"
+            min="1"
+            step="1"
+            [(ngModel)]="delay"
+            [attr.disabled]="gameIsRunning || null"
+        >
     </div>
-    <button type="button" (click)="onStart(field)" [disabled]="gameIsRunning">Start</button>
+    <button type="button" (click)="onStart()" [attr.disabled]="gameIsRunning || null">Start</button>
     <div class="vertical">
         <div>User : Comp</div>
         <span>{{ userCounter + ' : ' + compCounter }}</span>
     </div>
 </div>
-<div #field class="field center" (click)="onFieldClick($event.target)">
-    <div class="cell" *ngFor="let cell of cells"></div>
+<div class="field center" (click)="onFieldClick($event.target.id)">
+    <div class="cell"
+        *ngFor="let cell of cells; let i = index; trackBy: trackByFn" 
+        [style.backgroundColor]='cell || "blue"'
+        [id]='i'
+    ></div>
 </div>
 
-<div class="modal" *ngIf="isModal">
-    <span (click)="closeModal()">&times;</span>
-    <h2>{{ modalData?.title }}</h2>
-    <p>{{ modalData?.text }}</p>
+<div class="overlay close" *ngIf="isModal" (click)="onCloseModal($event.target)">
+    <div class="modal">
+        <span class="close">&times;</span>
+        <h2>{{ modalData?.title }}</h2>
+        <p>{{ modalData?.text }}</p>
+    </div>
 </div>
+

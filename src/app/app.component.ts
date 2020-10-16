@@ -1,4 +1,6 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription, SubscriptionLike, timer } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 
 interface IModalData {
     title: string;
@@ -10,102 +12,101 @@ interface IModalData {
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-    cells: any[];
+export class AppComponent implements OnInit, OnDestroy {
+    cells: string[];
     userCounter = 0;
     compCounter = 0;
     gameIsRunning = false;
-    delay = 1000;
-    greenArr: number[] = [];
-    redArr: number[] = [];
+    delay = 10;
     isModal = false;
     modalData: IModalData;
+    isLastFailed = true;
 
-    constructor(
-        private renderer: Renderer2
-    ) { }
+    gameRunner$: Observable<number>;
+    gameRunnerSubscription: SubscriptionLike = Subscription.EMPTY;
 
     ngOnInit(): void {
         this.cells = Array(100);
     }
 
-    onStart(field: HTMLDivElement): void {
-        const cell: HTMLCollection = field.children;
-        this.reset(cell);
+    onStart(): void {
+        this.reset();
+        this.gameRunner$ = timer(0, this.delay * 100);
         this.gameIsRunning = true;
-        this.step(cell);
-    }
 
-    step(cell: HTMLCollection): void {
-        if (!this.gameIsRunning) {
-            return;
-        }
+        this.gameRunnerSubscription = this.gameRunner$
+            .pipe(
+                map(() => {
+                    const num = this.getRundomNumber();
+                    if (!(this.isLastFailed && this.compCounter > 8)) {
+                        this.cells[num] = 'yellow';
+                    }
+                    this.isLastFailed = true;
+                    return num;
+                }),
+                delay(this.delay * 100)
+            )
+            .subscribe((num: number) => {
+                if (this.cells[num] === 'yellow') {
+                    this.cells[num] = 'red';
+                    this.compCounter++;
 
-        const randomNumber = Math.floor(Math.random() * (100));
-        const randomCell = cell[randomNumber];
-        this.renderer.addClass(randomCell, 'yellow');
-
-        setTimeout((): void => {
-            if (!randomCell.className.includes('green')) {
-                this.renderer.removeClass(randomCell, 'yellow');
-                this.renderer.addClass(randomCell, 'red');
-                this.compCounter++;
-                this.redArr.push(randomNumber);
-
-                if (this.compCounter === 10) {
-                    this.gameIsRunning = false;
-                    this.modalData = {
-                        title: 'Oh no!',
-                        text: 'You are a loser! :('
-                    };
-                    this.isModal = true;
+                    if (this.compCounter === 10) {
+                        this.showModal(false);
+                    }
                 }
-            } else {
-                this.greenArr.push(randomNumber);
-            }
-            this.step(cell);
-
-        }, this.delay);
+            });
     }
 
-    reset(cell: HTMLCollection): void {
+    getRundomNumber(): number {
+        const num = Math.floor(Math.random() * (100));
+        return this.cells[num] ? this.getRundomNumber() : num;
+    }
+
+    showModal(isUserWinner = true) {
+        this.gameRunnerSubscription.unsubscribe();
+        this.gameIsRunning = false;
+
+        this.modalData = {
+            title: isUserWinner ? 'Congratulations!' : 'Oh no!',
+            text: isUserWinner ? 'You are a winner! :)' : 'You are a loser! :('
+        };
+        this.isModal = true;
+    }
+
+    ngOnDestroy(): void {
+        this.gameRunnerSubscription.unsubscribe();
+    }
+
+    reset(): void {
         this.userCounter = 0;
         this.compCounter = 0;
-
-        this.redArr.forEach((elem: number) => {
-            this.renderer.removeClass(cell[elem], 'red');
-        });
-        this.greenArr.forEach((elem: number) => {
-            this.renderer.removeClass(cell[elem], 'green');
-        });
-
-        this.redArr = [];
-        this.greenArr = [];
+        this.cells = Array(100);
     }
 
-    onFieldClick(target: HTMLElement): void {
-        if (!this.gameIsRunning) {
+    onFieldClick(index: string): void {
+        if (!index || !this.gameIsRunning) {
             return;
         }
-        const className = target.className;
 
-        if (className.includes('yellow')) {
-            this.renderer.removeClass(target, 'yellow');
-            this.renderer.addClass(target, 'green');
+        if (this.cells[+index] === 'yellow') {
+            this.cells[+index] = 'green';
             this.userCounter++;
+            this.isLastFailed = false;
 
             if (this.userCounter === 10) {
-                this.gameIsRunning = false;
-                this.modalData = {
-                    title: 'Congratulations!',
-                    text: 'You are a winner! :)'
-                };
-                this.isModal = true;
+                this.showModal();
             }
         }
     }
 
-    closeModal(): void {
-        this.isModal = false;
+    onCloseModal(target: HTMLElement): void {
+        if (target.className.includes('close')) {
+            this.isModal = false;
+        }
+    }
+
+    trackByFn(index: number): number {
+        return index;
     }
 }
